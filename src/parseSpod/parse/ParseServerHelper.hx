@@ -69,6 +69,27 @@ class ParseServerHelper
 		return promise;
 	}
 
+	public static function loginWithFaceBook(server:String, signupOptions:Dynamic, useToken:Bool, ?installationId:String) : Promise<ParseSession>
+	{
+		var deferred:Deferred<ParseSession> = new Deferred();
+		var promise:Promise<ParseSession> = new Promise(deferred);
+		var options = (installationId != null)?{installationId: installationId}:null;
+
+		ParseIO.get(server).add(HttpMethod.POST, ParseUrls.getSignupUrl(server), signupOptions, null, null, installationId)
+		.then(function(resp:ParseSession){
+			if (useToken){
+				ParseIO.setToken(server, resp.sessionToken);
+			}
+			deferred.resolve(resp);
+			
+		})
+		.catchError(function(err:String){
+			deferred.throwError(err);
+			
+		});
+		return promise;
+	}
+
 	public static function passwordReset(server:String, email:String) : Promise<Bool>
 	{
 		var deferred:Deferred<Bool> = new Deferred();

@@ -58,7 +58,7 @@ class Http<T> extends Stream<T>
 			_innerhttp = null;
 		}
 	}
-	
+
 	var _data:String;
 	var _response:Deferred<T>;
 	var _contentType:String;
@@ -172,7 +172,7 @@ class Http<T> extends Stream<T>
 					var size:Int = FileSystem.stat(_filePath).size;
 					_innerhttp.fileTransfert(_fileArgName, filename, input, size, _fileContentType);
 				#else
-					_innerhttp.uploadFile(_fileArgName, _filePath, _fileContentType);
+					//_innerhttp.uploadFile(_fileArgName, _filePath, _fileContentType);
 				#end
 			}
 			

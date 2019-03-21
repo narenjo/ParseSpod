@@ -10,6 +10,9 @@ class ParseUrls
 
 	static inline public function getClassUrl(server:String, className:String) 
 	{
+		if(className == "installations"){
+			return return ParseServers.getHost(server) + "/installations";
+		}
 		return ParseServers.getHost(server) + "/classes/" + className;
 	}
 	
@@ -53,4 +56,11 @@ class ParseUrls
 		return ParseServers.getHost(server) + "/files/" + filename;
 	}
 	
+	static public function getPathFromUrl(url:String)
+	{
+		var parts = url.split("/");
+		parts.splice(0, 3);
+
+        return "/" + parts.join("/");
+	}
 }

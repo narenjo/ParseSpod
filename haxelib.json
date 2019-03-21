@@ -2,9 +2,10 @@
 	"contributors": [
 		"tbyrne"
 	],
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"dependencies": {
-		"promhx": ""
+		"promhx": "",
+		"datetime": ""
 	  },
 	"releasenote": "",
 	"tags": ["restful", "api"],

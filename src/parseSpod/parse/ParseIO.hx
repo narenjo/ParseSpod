@@ -1,5 +1,5 @@
 package parseSpod.parse;
-import com.imagination.util.time.Timer;
+import haxe.Timer;
 import parseSpod.http.Http;
 import parseSpod.http.Http.HttpMethod;
 import haxe.Json;
@@ -60,7 +60,7 @@ class ParseIO
 		if (queryVars != null){
 			url += encodeQueryVars(queryVars);
 		}
-		
+
 		if (batchDelay <= 0 || !canBatch(method, url, data, options) || file!=null){
 			return sendSingleRequest(method, url, data, options, file, contentType);
 		}else{
@@ -196,16 +196,12 @@ class ParseIO
 	
 	private function startBatchTimer() 
 	{
-		if (batchTimer == null){
-			batchTimer = new Timer(sendBatch, Std.int(batchDelay * 1000));
-		}
-		batchTimer.go();
+		Timer.delay(sendBatch, Std.int(batchDelay) * 1000);
 	}
 	
 	private function sendBatch() 
 	{
-		batchTimer.stop();
-		
+		//batchTimer.stop();
 		var batchQue = this.batchQue;
 		this.batchQue = [];
 		
@@ -216,7 +212,9 @@ class ParseIO
 		}
 		var data:BatchOpData = {requests:[]};
 		for (queItem in batchQue){
-			data.requests.push(queItem.pack);
+			var pack:BatchRequest = {method:queItem.pack.method, path:ParseUrls.getPathFromUrl(queItem.pack.url)};
+			if (queItem.pack.data != null) pack.body = queItem.pack.data;
+			data.requests.push(pack);
 		}
 		var http = getHttp(HttpMethod.POST, ParseUrls.getBatchUrl(server), data);
 		http.then(onBatchSuccess.bind(_, batchQue));
@@ -233,10 +231,10 @@ class ParseIO
 	
 	private function onBatchSuccess(res:String, batchQue:Array<ParseRequest>) 
 	{
-		var res:BatchResponse = Json.parse(res);
+		var res:Array<Dynamic> = Json.parse(res);
 		for (i in 0 ... batchQue.length){
 			var item = batchQue[i];
-			interpretResult(item.deferred, res.results[i]);
+			interpretResult(item.deferred, res[i]);
 		}
 	}
 	
@@ -281,7 +279,9 @@ class ParseIO
 		http.setHeader("Content-type", "text/plain");
 		
 		var token:String = ( options==null || options.token==null ? this.token : options.token );
+		var installId:String = ( options==null || options.installationId==null ? null : options.installationId );
 		if(token != null) http.setHeader("X-Parse-Session-Token", token);
+		if(installId != null) http.setHeader("X-Parse-Installation-Id", installId);
 		return http;
 	}
 	
@@ -296,7 +296,8 @@ class ParseIO
 
 typedef RequestOptions =
 {
-	token:String
+	token:String,
+	?installationId:String
 }
 
 typedef ParseRequest =
@@ -308,7 +309,7 @@ typedef ParseRequest =
 
 typedef BatchOpData =
 {
-	requests:Array<ParseRequestPackage>
+	requests:Array<BatchRequest>
 }
 
 typedef ParseRequestPackage =
@@ -316,6 +317,18 @@ typedef ParseRequestPackage =
 	method:HttpMethod,
 	url:String,
 	?data:Dynamic
+}
+
+typedef BatchRequest =
+{
+	method:HttpMethod,
+	path:String,
+	?body:Dynamic
+}
+
+typedef OldBatchResponse = 
+{
+	results:Array<Dynamic>
 }
 
 typedef BatchResponse = 

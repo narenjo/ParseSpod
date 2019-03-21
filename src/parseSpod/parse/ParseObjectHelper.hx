@@ -89,6 +89,12 @@ class ParseObjectHelper
 					
 				case EntityDescFieldType.RELATION:
 					// must be explicitly loaded
+
+				case EntityDescFieldType.DATE:
+				trace(Type.typeof(Reflect.field(entity, field.name)), Reflect.field(entity, field.name));
+					var date:ParseDate = Reflect.field(entity, field.name);
+				trace(Type.typeof(date), date);
+					if(date != null) field.remote.set(objId, date);
 			}
 		}
 		return untyped objId;
@@ -114,7 +120,12 @@ class ParseObjectHelper
 						changedFields.push(field);
 							
 					case EntityDescFieldType.POINTER:
-						if (Reflect.hasField(localValue, "objectId")) localValue = Reflect.field(localValue, "objectId");
+						switch(Type.typeof(localValue)) {
+							case Type.ValueType.TClass(c):
+								if (Type.getInstanceFields(c).indexOf("objectId") != -1) localValue = Reflect.field(localValue, "objectId");
+							default:
+								if (Reflect.hasField(localValue, "objectId")) localValue = Reflect.field(localValue, "objectId");
+						}
 						if (localValue != null) Reflect.setField(changedProps, field.name, { __type: "Pointer", objectId:localValue, className: field.remoteType });
 						else Reflect.setField(changedProps, field.name, null);
 						changedFields.push(field);
@@ -133,7 +144,15 @@ class ParseObjectHelper
 						
 					case EntityDescFieldType.RELATION:
 						// Can't directly set relations
-					
+					case EntityDescFieldType.DATE:
+						var date:ParseDate = untyped localValue;
+						if(date == null){
+							Reflect.setField(changedProps, field.name, null);
+						}
+						else{
+							Reflect.setField(changedProps, field.name, { __type: "Date", iso: date });
+						}
+						changedFields.push(field);
 				}
 			}
 			if (field.name == "createdAt"){
@@ -167,7 +186,7 @@ class ParseObjectHelper
 				// Must move relations over to new ID
 				for (field in desc.fields){
 					switch(field.type){
-						case EntityDescFieldType.POINTER | EntityDescFieldType.FILE | EntityDescFieldType.NORMAL:
+						case EntityDescFieldType.POINTER | EntityDescFieldType.FILE | EntityDescFieldType.NORMAL | EntityDescFieldType.DATE:
 								
 						case EntityDescFieldType.RELATION:
 							migrateItems(origId, id, field.local);
@@ -323,4 +342,5 @@ abstract EntityDescFieldType(String){
 	public var POINTER = "pointer";
 	public var RELATION = "relation";
 	public var FILE = "file";
+	public var DATE = "date";
 }

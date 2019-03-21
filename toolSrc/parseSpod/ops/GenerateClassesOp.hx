@@ -250,6 +250,7 @@ class GenerateClassesOp implements IOp
 						
 					case "Date":
 						type = "ParseDate";
+						descType = "EntityDescFieldType.DATE";
 						
 					case "ACL":
 						type = "ParseACL";
