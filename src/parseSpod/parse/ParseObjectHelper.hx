@@ -91,9 +91,7 @@ class ParseObjectHelper
 					// must be explicitly loaded
 
 				case EntityDescFieldType.DATE:
-				trace(Type.typeof(Reflect.field(entity, field.name)), Reflect.field(entity, field.name));
 					var date:ParseDate = Reflect.field(entity, field.name);
-				trace(Type.typeof(date), date);
 					if(date != null) field.remote.set(objId, date);
 			}
 		}
