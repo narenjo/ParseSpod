@@ -196,12 +196,17 @@ class ParseIO
 	
 	private function startBatchTimer() 
 	{
-		Timer.delay(sendBatch, Std.int(batchDelay) * 1000);
+		if (batchTimer == null){
+			batchTimer = new Timer(Std.int(batchDelay) * 1000);
+		}
+		batchTimer.run = sendBatch;
 	}
 	
 	private function sendBatch() 
 	{
-		//batchTimer.stop();
+		batchTimer.stop();
+		batchTimer = null;
+
 		var batchQue = this.batchQue;
 		this.batchQue = [];
 		
@@ -234,7 +239,7 @@ class ParseIO
 		var res:Array<Dynamic> = Json.parse(res);
 		for (i in 0 ... batchQue.length){
 			var item = batchQue[i];
-			interpretResult(item.deferred, res[i]);
+			interpretResult(item.deferred, res[i].success);
 		}
 	}
 	
@@ -324,11 +329,6 @@ typedef BatchRequest =
 	method:HttpMethod,
 	path:String,
 	?body:Dynamic
-}
-
-typedef OldBatchResponse = 
-{
-	results:Array<Dynamic>
 }
 
 typedef BatchResponse = 
