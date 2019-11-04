@@ -68,8 +68,8 @@ class BaseHaxeHttp {
 	public var withCredentials : Bool;
 #end
 	var postData : String;
-	var headers : List<{ header:String, value:String }>;
-	var params : List<{ param:String, value:String }>;
+	var headers : Array<{ header:String, value:String }>;
+	var params : Array<{ param:String, value:String }>;
 	var explicitMethod:String;
 
 	#if sys
@@ -89,8 +89,8 @@ class BaseHaxeHttp {
 	**/
 	public function new( url : String ) {
 		this.url = url;
-		headers = new List<{ header:String, value:String }>();
-		params = new List<{ param:String, value:String }>();
+		headers = new Array<{ header:String, value:String }>();
+		params = new Array<{ param:String, value:String }>();
 
 		#if (js && !nodejs)
 		async = true;
