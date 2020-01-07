@@ -16,10 +16,16 @@ abstract ParseDate(String)
 
 	@:to
 	public function toDate():Date{
+		if(this == null){
+			return null;
+		}
 		return DateTime.fromString(this).getDate();
 	}
 	@:to
 	public function toFloat():Float{
+		if(this == null){
+			return 0;
+		}
 		return DateTime.fromString(this).getTime() * 1000;
 	}
 	@:from
@@ -31,6 +37,9 @@ abstract ParseDate(String)
 	}
 	@:from
 	static public function fromDynamic(date:Dynamic){
+		if(date == null){
+			return null;
+		}
 		if(Type.typeof(date) == Type.ValueType.TObject){
 			return new ParseDate(date.iso);
 		}
